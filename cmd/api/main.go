@@ -12,10 +12,10 @@ func main() {
 	db := config.NewDatabase()
 
 	// 2. Run Migrations (Create Tables automatically)
-	db.AutoMigrate()
+	db.AutoMigrate(&user.User{})
 
 	// 3. Init Layers (Dependency Injection)
-	repo := user.NewRepository()
+	repo := user.NewRepository(db)
 	service := user.NewService(repo)
 	handler := user.NewHandler(service)
 
@@ -37,5 +37,5 @@ func main() {
 	// }
 
 	// 6. Start Server
-	r.Run(":8080")
+	r.Run(":8022")
 }
