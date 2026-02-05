@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -23,8 +24,24 @@ func NewService(repo *Repository) *Service {
 // --- Logic Implementation ---
 
 func (s *Service) Register(user *User) error {
-	hashed, _ := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+	//Normalize email
+	user.Email = strings.TrimSpace(strings.ToLower(user.Email))
+
+	// check if email already exists
+	exists, err := s.Repo.ExistsByEmail(user.Email)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return errors.New("email already exists")
+	}
+	// Hash password
+	hashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+	if err != nil {
+		return err
+	}
 	user.Password = string(hashed)
+
 	return s.Repo.Create(user)
 }
 

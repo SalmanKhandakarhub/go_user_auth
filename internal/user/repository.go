@@ -27,3 +27,11 @@ func (r *Repository) FindByEmail(email string) (*User, error) {
 	err := r.DB.Where("email = ?", email).First(&user).Error
 	return &user, err
 }
+
+func (r *Repository) ExistsByEmail(email string) (bool, error) {
+	var count int64
+	err := r.DB.Model(&User{}).
+		Where("email = ?", email).
+		Count(&count).Error
+	return count > 0, err
+}
